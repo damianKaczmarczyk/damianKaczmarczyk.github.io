@@ -6,11 +6,27 @@ import * as THREE from 'three'
 
 function App(){
   const scene = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+  const viewSize = 60;
+  const aspectRatio = window.innerWidth / window.innerHeight;
+  const originalAspect = window.innerWidth / window.innerHeight;
+  const camera = new THREE.OrthographicCamera(-aspectRatio * viewSize / 2, aspectRatio * viewSize / 2, viewSize / 2, -viewSize / 2, 0.1, 1000);
   const renderer = new THREE.WebGL1Renderer({
     canvas: document.querySelector('#bg') as HTMLInputElement,
   })
   scene.background = new THREE.TextureLoader().load(milkyWay);
+  window.addEventListener('resize', onWindowResize, false);
+
+  function onWindowResize() {
+      var aspect = window.innerWidth / window.innerHeight;
+      var change = originalAspect / aspect;
+      var newSize = viewSize * change;
+      camera.left = -aspect * newSize / 2;
+      camera.right = aspect * newSize  / 2;
+      camera.top = newSize / 2;
+      camera.bottom = -newSize / 2;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+  }
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   camera.position.setZ(30);
@@ -24,30 +40,29 @@ function App(){
   );
   scene.add(planet);
 
-  const pointLight = new THREE.PointLight(0xffffff);
-  pointLight.position.set(5,5,5);
 
   const ambientLight = new THREE.AmbientLight(0xffffff);
-  scene.add(pointLight, ambientLight);
+  scene.add(ambientLight);
 
   function animate() {
     requestAnimationFrame(animate);
-    planet.rotateX(0.002);
-    planet.rotateY(0.001);
+    planet.rotateX(0.003);
+    planet.rotateY(0.002);
     planet.rotateZ(0.001);
 
     renderer.render(scene, camera);
   }
+
   let prevPos = document.body.getBoundingClientRect().top;
   function moveCamera() {
     const t = document.body.getBoundingClientRect().top;
-    let multiplier = (prevPos > t ? 1 : -1) * 0.0003;
-    planet.position.z -= Math.abs(prevPos - t) * multiplier;
+    const multiplier = (prevPos > t ? 1 : -1) * 0.0003;
+    planet.position.z -= Math.abs(prevPos - t) * multiplier * 10;
+    planet.position.x -= Math.abs(prevPos - t) * multiplier * 10;
+    planet.position.y -= Math.abs(prevPos - t) * multiplier * 10;
     
-    //camera.position.setX(t * -0.0001);
     camera.rotateY(Math.abs(prevPos - t) * multiplier);
     console.log(camera.rotation);
-    //camera.position.setZ(t * -0.00001);
     prevPos = t;
   }
   document.body.onscroll = moveCamera
@@ -66,13 +81,6 @@ function App(){
     }
 
   animate();
-  //help();
-
-  function help() {
-    const lightHelper = new THREE.PointLightHelper(pointLight);
-    scene.add(lightHelper);
-  }
-
   return null;
 }
 export default App
