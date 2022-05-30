@@ -35,7 +35,6 @@ canvas {
 
 
 main {
-  width: 100vw;
   color: white;
   z-index: 99;
   position: absolute;
@@ -93,10 +92,24 @@ canvas {
   left: 0;
 }
 
-main {
-  position: absolute;
+footer {
+  background-color: rgba(139, 26, 192, 0.7);
+  padding: 1rem;
+  position: relative;
+  display: flex;
+  grid-column: 1/12;
+  justify-content: center;
+  font-weight: bold;
+  color: #282c34;
 }
 
+div {
+  margin-left: 3rem;
+}
+
+.footer {
+  justify-content: center;
+}
 
 .App {
   text-align: center;
